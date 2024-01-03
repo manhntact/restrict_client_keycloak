@@ -11,8 +11,8 @@ import org.keycloak.representations.AccessToken;
 
 import java.util.Set;
 
-final class RestrictClientAuthAuthenticator implements ClientAuthenticator {
-    private static final Logger LOG = Logger.getLogger(RestrictClientAuthAuthenticator.class);;
+final class RestrictClientAuthenticator implements ClientAuthenticator {
+    private static final Logger LOG = Logger.getLogger(RestrictClientAuthenticator.class);;
 
     @Override
     public void authenticateClient(ClientAuthenticationFlowContext context) {

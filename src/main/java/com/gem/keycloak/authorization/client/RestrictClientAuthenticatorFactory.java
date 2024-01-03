@@ -2,18 +2,16 @@ package com.gem.keycloak.authorization.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.logging.Logger;
-import org.keycloak.authentication.AuthenticationFlowError;
-import org.keycloak.authentication.ClientAuthenticationFlowContext;
+import org.keycloak.Config;
 import org.keycloak.authentication.ClientAuthenticator;
-import org.keycloak.authentication.authenticators.client.AbstractClientAuthenticator;
-import org.keycloak.authentication.authenticators.client.JWTClientValidator;
-import org.keycloak.events.Errors;
+import org.keycloak.authentication.ClientAuthenticatorFactory;
 import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.ClientModel;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.protocol.oidc.OIDCConfigAttributes;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.provider.ProviderConfigProperty;
-import org.keycloak.representations.AccessToken;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,15 +25,35 @@ import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUI
 import static org.keycloak.provider.ProviderConfigProperty.STRING_TYPE;
 
 @Slf4j
-public final class RestrictClientAuthAuthenticatorFactory extends AbstractClientAuthenticator {
+public final class RestrictClientAuthenticatorFactory implements ClientAuthenticatorFactory {
 
-    private static final Logger LOG = Logger.getLogger(RestrictClientAuthAuthenticatorFactory.class);
+    private static final Logger LOG = Logger.getLogger(RestrictClientAuthenticatorFactory.class);
 
     private static final AuthenticationExecutionModel.Requirement[] REQUIREMENT_CHOICES = new AuthenticationExecutionModel.Requirement[]{REQUIRED, DISABLED};
     public static final String PROVIDER_ID = "restrict-client-authenticator";
-    private static final ClientAuthenticator CLIENT_AUTHENTICATOR = new RestrictClientAuthAuthenticator();
+    private static final ClientAuthenticator CLIENT_AUTHENTICATOR = new RestrictClientAuthenticator();
 
     static final String ALLOWED_IP_ADDRESS_CONFIG = "allowed_group_by_client_access_role";
+
+    @Override
+    public ClientAuthenticator create(KeycloakSession keycloakSession) {
+        return null;
+    }
+
+    @Override
+    public void init(Config.Scope scope) {
+
+    }
+
+    @Override
+    public void postInit(KeycloakSessionFactory keycloakSessionFactory) {
+
+    }
+
+    @Override
+    public void close() {
+
+    }
 
     @Override
     public String getId() {
@@ -49,6 +67,11 @@ public final class RestrictClientAuthAuthenticatorFactory extends AbstractClient
 
     @Override
     public String getReferenceCategory() {
+        return null;
+    }
+
+    @Override
+    public ClientAuthenticator create() {
         return null;
     }
 
@@ -109,10 +132,10 @@ public final class RestrictClientAuthAuthenticatorFactory extends AbstractClient
         }
     }
 
-    @Override
-    public boolean supportsSecret() {
-        return super.supportsSecret();
-    }
+//    @Override
+//    public boolean supportsSecret() {
+//        return super.supportsSecret();
+//    }
 
     @Override
     public String getHelpText() {
@@ -124,30 +147,30 @@ public final class RestrictClientAuthAuthenticatorFactory extends AbstractClient
         return null;
     }
 
-    @Override
-    public void authenticateClient(ClientAuthenticationFlowContext context) {
-        JWTClientValidator validator = new JWTClientValidator(context);
-        String clientAssertion = validator.getClientAssertion();
-        final ClientModel client = validator.getClient();
-
-        final String accessRolePrefix = "_access_role";
-        final String accessRoleName = client.getName().concat(accessRolePrefix);
-        log.warn("Restrict client :".concat(client.getName()));
-        LOG.warn("Restrict client :".concat(client.getName()));
-
-        AccessToken accessToken = context.getSession().tokens().decodeClientJWT(clientAssertion, client, AccessToken.class);
-
-        Set<String> accessRole = accessToken.getResourceAccess().get(client.getName()).getRoles();
-
-
-        if (accessRole.contains(accessRoleName)) {
-            context.success();
-        } else {
-            context.getEvent()
-                .realm(context.getRealm())
-                .client(client)
-                .error(Errors.ACCESS_DENIED);
-            context.failure(AuthenticationFlowError.ACCESS_DENIED);
-        }
-    }
+//    @Override
+//    public void authenticateClient(ClientAuthenticationFlowContext context) {
+//        JWTClientValidator validator = new JWTClientValidator(context);
+//        String clientAssertion = validator.getClientAssertion();
+//        final ClientModel client = validator.getClient();
+//
+//        final String accessRolePrefix = "_access_role";
+//        final String accessRoleName = client.getName().concat(accessRolePrefix);
+//        log.warn("Restrict client :".concat(client.getName()));
+//        LOG.warn("Restrict client :".concat(client.getName()));
+//
+//        AccessToken accessToken = context.getSession().tokens().decodeClientJWT(clientAssertion, client, AccessToken.class);
+//
+//        Set<String> accessRole = accessToken.getResourceAccess().get(client.getName()).getRoles();
+//
+//
+//        if (accessRole.contains(accessRoleName)) {
+//            context.success();
+//        } else {
+//            context.getEvent()
+//                .realm(context.getRealm())
+//                .client(client)
+//                .error(Errors.ACCESS_DENIED);
+//            context.failure(AuthenticationFlowError.ACCESS_DENIED);
+//        }
+//    }
 }
